@@ -46,6 +46,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Wichtig: Alle Methoden erlauben
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     res.header('Access-Control-Allow-Origin', '*');
@@ -108,24 +109,26 @@ app.post('/api/cs2/login', (req, res) => {
     res.json(response);
 });
 
-// Status Endpoint
+// ========== STATUS ENDPOINT (wichtig für Test) ==========
 app.get('/api/cs2/status', (req, res) => {
     const totalUsers = Object.keys(users).length;
     const activeUsers = Object.values(users).filter(u => u.expires_at > Date.now()).length;
     res.json({ 
         online: true, 
         game: "CS2",
-        totalUsers, 
-        activeUsers, 
+        totalUsers: totalUsers,
+        activeUsers: activeUsers,
         timestamp: Date.now(),
         version: '1.0.0'
     });
 });
 
+// ========== HEALTH CHECK ==========
 app.get('/health', (req, res) => {
     res.json({ status: 'online', uptime: process.uptime() });
 });
 
+// ========== ROOT ENDPOINT ==========
 app.get('/', (req, res) => {
     res.json({ 
         name: 'Enox CS2 API', 
@@ -137,7 +140,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ CS2 API läuft auf Port ${PORT}`));
 
-// ============== DISCORD BOT COMMANDS für CS2 ==============
+// ============== DISCORD BOT COMMANDS ==============
 const PREFIX = '!';
 
 client.on('ready', () => {
@@ -297,7 +300,7 @@ client.on('messageCreate', async (message) => {
 
 const TOKEN = process.env.DISCORD_TOKEN;
 if (!TOKEN) {
-    console.error('❌ DISCORD_TOKEN nicht gesetzt!');
+    console.error('❌ DISCORD_TOKEN nicht gesetzt! Füge eine Environment Variable hinzu.');
     process.exit(1);
 }
 
